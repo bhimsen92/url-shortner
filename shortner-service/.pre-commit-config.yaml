@@ -1,0 +1,12 @@
+repos:
+  - repo: https://github.com/charliermarsh/ruff
+    rev: v0.0.241
+    hooks:
+      - id: ruff                     # Lints code; reads [tool.ruff] in pyproject.toml
+        args:
+          - --fix
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort                    # Sorts imports; reads [tool.isort] in pyproject.toml

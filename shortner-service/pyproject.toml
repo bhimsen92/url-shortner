@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=80.9.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "shortner-service"
+version = "1.0.0"
+description = "A URL shortner service"
+readme = "README.md"
+requires-python = ">= 3.12"
+license = { text = "MIT" }
+authors = [
+    { name = "Bheemsen", email = "test@email.com" }
+]
+dependencies = [
+    "alembic==1.16.4",
+    "fastapi==0.116.1",
+    "httpx==0.28.1",
+    "httpx==0.28.1",
+    "psycopg2-binary==2.9.10",
+    "pydantic-settings==2.10.1",
+    "PyJWT==2.10.1",
+    "PyYAML==6.0.2"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.0",
+  "ruff>=0.0.241",
+  "black>=23.1.0",
+  "isort>=5.10.1",
+  "mypy>=0.982",
+  "pre-commit"
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+
+# Enable formatting (Black-compatible)
+format = true
+
+# Select rules for linting and formatting
+select = [
+  "E",    # pycodestyle errors
+  "W",    # pycodestyle warnings
+  "F",    # pyflakes
+  "I",    # isort (import sorting)
+  "C90",  # mccabe (complexity)
+  "UP",   # pyupgrade
+  "RUF",  # Ruff-specific rules
+]
+
+# Ignore specific rules if needed
+ignore = [
+  "E501",  # Ignore long lines (optional)
+]
+quote-style = "double"         # Use double quotes
+indent-style = "space"         # Use spaces, not tabs
+skip-magic-trailing-comma = false
+line-ending = "auto"           # Match system default
