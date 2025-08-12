@@ -37,9 +37,7 @@ dev = [
 [tool.ruff]
 line-length = 88
 target-version = "py38"
-
-# Enable formatting (Black-compatible)
-format = true
+exclude = ["alembic", "pyproject.toml"]
 
 # Select rules for linting and formatting
 select = [
@@ -56,7 +54,3 @@ select = [
 ignore = [
   "E501",  # Ignore long lines (optional)
 ]
-quote-style = "double"         # Use double quotes
-indent-style = "space"         # Use spaces, not tabs
-skip-magic-trailing-comma = false
-line-ending = "auto"           # Match system default
