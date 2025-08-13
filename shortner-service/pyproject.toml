@@ -21,7 +21,10 @@ dependencies = [
     "psycopg2-binary==2.9.10",
     "pydantic-settings==2.10.1",
     "PyJWT==2.10.1",
-    "PyYAML==6.0.2"
+    "PyYAML==6.0.2",
+    "fastapi[standard]",
+    "sqlmodel",
+    "passlib",
 ]
 
 [project.optional-dependencies]
@@ -37,10 +40,10 @@ dev = [
 [tool.ruff]
 line-length = 88
 target-version = "py38"
-exclude = ["alembic", "pyproject.toml"]
+exclude = ["alembic", "migrations", "pyproject.toml"]
 
 # Select rules for linting and formatting
-select = [
+lint.select = [
   "E",    # pycodestyle errors
   "W",    # pycodestyle warnings
   "F",    # pyflakes
@@ -51,6 +54,6 @@ select = [
 ]
 
 # Ignore specific rules if needed
-ignore = [
+lint.ignore = [
   "E501",  # Ignore long lines (optional)
 ]
