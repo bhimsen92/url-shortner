@@ -1,17 +1,14 @@
 import uuid
 from datetime import datetime
 
-from passlib.context import CryptContext
 from sqlmodel import Field, Relationship, SQLModel
 
-from app.security import encode_jwt
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+from app.security import encode_jwt, validate_password
 
 
 class User(SQLModel, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True, index=True)
-    username: str = Field(index=True)
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    username: str = Field(index=True, unique=True)
     display_name: str
     hashed_password: str
     is_active: bool = Field(default=True)
@@ -19,13 +16,10 @@ class User(SQLModel, table=True):
     updated_at: datetime = Field(default_factory=datetime.now)
 
     # back-populate fields.
-    url: list["URL"] = Relationship(back_populates="user")
-
-    def set_password(self, raw_password: str) -> None:
-        self.hashed_password = pwd_context.hash(raw_password)
+    urls: list["URL"] = Relationship(back_populates="user")
 
     def verify_password(self, raw_password) -> bool:
-        return pwd_context.verify(raw_password, self.hashed_password)
+        return validate_password(raw_password, self.hashed_password)
 
     def token(self):
         payload = {
@@ -46,3 +40,8 @@ class URL(SQLModel, table=True):
 
     # back-populate fields.
     user: User = Relationship(back_populates="urls")
+
+
+class IDCounter(SQLModel, table=True):
+    key: str = Field(primary_key=True, index=True)
+    next_id: int = Field(default=1, nullable=False)

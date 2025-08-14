@@ -8,7 +8,7 @@ class UserLogin(BaseModel):
     password: str
 
 
-class UserSignUp(UserLogin):
+class UserCreate(UserLogin):
     display_name: str
 
 
@@ -18,8 +18,8 @@ class Token(BaseModel):
 
 class URLIn(BaseModel):
     original_url: str
-    alias: str
-    expires_in: datetime
+    alias: str | None = None
+    expires_in: datetime | None = None
 
 
 class URLOut(BaseModel):

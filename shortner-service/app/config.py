@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     jwt_algorithm: str
     jwt_expire_duration_minutes: int
 
+    id_counter_key: str
+    id_counter_batch_size: int
+    hash_id_counter_secret: str
+
     @classmethod
     def settings_customise_sources(
         cls,
