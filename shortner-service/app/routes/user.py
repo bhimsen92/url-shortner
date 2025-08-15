@@ -18,7 +18,7 @@ route = APIRouter(
 )
 
 
-@route.post("/")
+@route.post("")
 def create_user(
     user_create: UserCreate,
     session: SessionDep,

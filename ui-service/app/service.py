@@ -31,9 +31,7 @@ class ShortenerService:
         return resp.json()
 
     async def signup(self, user_create: UserCreate) -> Dict[str, Any]:
-        resp = await self.client.post(
-            "/api/v1/users/signup", json=user_create.model_dump()
-        )
+        resp = await self.client.post("/api/v1/users", json=user_create.model_dump())
         if resp.status_code not in (200, 201):
             raise APIError(resp.status_code, resp.json())
         return resp.json()
