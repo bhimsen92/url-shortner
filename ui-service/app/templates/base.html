@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{{ title if title else "URL Shortener UI" }}</title>
+
+  <!-- Tailwind Play CDN (good for rapid prototyping). In production compile Tailwind. -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- HTMX -->
+  <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+  <!-- Alpine -->
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <style>
+    /* Small nicety to highlight HTMX swapped fragments */
+    [hx-swap-oob] { display: none; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <nav class="bg-white shadow p-4">
+    <div class="container mx-auto flex items-center justify-between">
+      <a href="/" class="font-bold text-xl">Shorty</a>
+      <div class="space-x-4">
+        {% if user %}
+          <a href="/urls" class="text-sm">My URLs</a>
+          <a href="/me" class="text-sm">Me</a>
+          <a href="/auth/logout" class="text-sm">Logout</a>
+        {% else %}
+          <a href="/auth/login" class="text-sm">Login</a>
+          <a href="/auth/signup" class="text-sm">Sign up</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto p-4">
+    {% block content %}{% endblock %}
+  </main>
+
+<script>
+document.body.addEventListener('htmx:beforeSwap', function (evt) {
+    // Allow swaps for any status code
+    if (evt.detail.xhr.status !== 200) {
+        evt.detail.shouldSwap = true;
+    }
+});
+</script>
+</body>
+</html>

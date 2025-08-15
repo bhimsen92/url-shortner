@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class UserLogin(BaseModel):
@@ -29,4 +29,12 @@ class URLIn(BaseModel):
 
 
 class URLOut(BaseModel):
+    short_url: str
+
+
+class URLItem(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    original_url: str
+    expires_at: datetime | None = None
     short_url: str

@@ -1,0 +1,20 @@
+{# This fragment represents the result area only. It's intended to replace the result container. #}
+<div id="shorten-result" class="bg-white p-4 rounded shadow">
+  {% if error %}
+    <div class="text-red-600">{{ error }}</div>
+  {% else %}
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="text-sm text-slate-500">Shortened</div>
+        <a href="{{ url.short_url }}" target="_blank" class="text-indigo-700 font-medium">{{ url.short_url }}</a>
+        <div class="text-sm text-slate-500">Original: <a href="{{ url.original_url }}">{{ url.original_url }}</a></div>
+      </div>
+      <div>
+            <a href="/urls"
+               class="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 whitespace-nowrap">
+              View all
+            </a>
+      </div>
+    </div>
+  {% endif %}
+</div>

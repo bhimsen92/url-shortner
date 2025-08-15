@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white p-6 rounded shadow">
+  <h2 class="text-xl font-semibold mb-4">My URLs</h2>
+
+  {% if error %}
+    <div class="text-red-600 mb-4">{{ error }}</div>
+  {% endif %}
+
+  {% if urls | length == 0 %}
+    <div class="text-slate-500">No urls yet. Create one from <a href="/">home</a>.</div>
+  {% else %}
+    <div class="space-y-3">
+      {% for u in urls %}
+        <div class="p-3 border rounded flex justify-between items-center">
+          <div>
+            <a href="{{ u.short_url }}" target="_blank" class="font-medium text-indigo-600">{{ u.short_url }}</a>
+            <div class="text-sm text-slate-500">Original: <a href="{{ u.original_url }}">{{ u.original_url }}</a></div>
+            <div class="text-xs text-slate-400">Clicks: {{ u.clicks }} • Created: {{ u.created_at }}</div>
+          </div>
+          <div class="flex gap-2">
+            <!-- HTMX delete example; assumes shortner service supports DELETE /urls/{id} -->
+            <button hx-delete="/urls/{{ u.id }}" hx-confirm="Delete this URL?" hx-swap="outerHTML" class="px-3 py-1 border rounded">Delete</button>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

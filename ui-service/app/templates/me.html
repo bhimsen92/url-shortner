@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white p-6 rounded shadow">
+  <h2 class="text-xl font-semibold mb-4">My Account</h2>
+  <div class="mb-4">
+    <div><strong>Name:</strong> {{ user.display_name or "-" }}</div>
+    <div><strong>Username:</strong> {{ user.username }}</div>
+    <div class="text-sm text-slate-500 mt-2">{{ summary.get('urls_count') }} URLs • {{ summary.get('total_clicks') }} total clicks</div>
+  </div>
+  <div class="flex gap-3">
+    <form hx-delete="/me" hx-confirm="Delete account and associated URLs? This action is irreversible." hx-swap="outerHTML">
+      <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded">Delete account</button>
+    </form>
+    <a href="/urls" class="px-4 py-2 border rounded">My URLs</a>
+  </div>
+</div>
+{% endblock %}

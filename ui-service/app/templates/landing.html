@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white rounded p-8 shadow">
+  <h1 class="text-2xl font-semibold mb-4">Welcome to Shorty</h1>
+  <p class="mb-4">Shorty is a small demo UI that talks to the shortner service. Create short links, manage them, and track usage.</p>
+  <div class="flex space-x-3">
+    <a href="/auth/signup" class="px-4 py-2 bg-indigo-600 text-white rounded">Get Started</a>
+    <a href="/auth/login" class="px-4 py-2 border rounded">Login</a>
+  </div>
+</div>
+{% endblock %}

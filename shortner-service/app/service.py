@@ -108,6 +108,10 @@ class URLService:
             alphabet="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
         )
 
+    def list_urls(self, *, user: User) -> list[URL]:
+        urls = self.ctx.session.exec(select(URL).where(URL.created_by == user.id))
+        return urls
+
     def shorten_url(self, *, url_data: URLIn, user: User) -> str:
         if url_data.alias:
             short_url = url_data.alias

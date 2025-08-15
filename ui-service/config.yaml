@@ -1,0 +1,6 @@
+environment: local
+secret_key: secret-key
+
+shortner_service: http://localhost:8000
+session_cookie: "session_id"
+cookie_max_age: 3600
