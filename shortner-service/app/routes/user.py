@@ -25,9 +25,8 @@ def create_user(
     user_service: UserServiceDep,
 ) -> Token:
     try:
-        with session.begin():
-            user = user_service.create_user(user_data=user_create)
-            return Token(access_token=user.token())
+        user = user_service.create_user(user_data=user_create)
+        return Token(access_token=user.token())
     except IntegrityError as _:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -41,7 +40,9 @@ def get_user(user: Annotated[User, Depends(get_current_user)]) -> Any:
 
 
 @route.post("/access-token")
-def get_token(user_login: UserLogin, user_service: UserServiceDep) -> Token:
+def get_token(
+    user_login: UserLogin, session: SessionDep, user_service: UserServiceDep
+) -> Token:
     try:
         return user_service.create_token(user_data=user_login)
     except NotFound as exc:

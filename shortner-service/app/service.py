@@ -4,15 +4,15 @@ import uuid
 from hashids import Hashids
 from sqlmodel import select, update
 
-from app.db import SessionContext
+from app.db import CurrentSessionContext
 from app.dto import Token, URLIn, UserCreate, UserLogin
 from app.exceptions import NotFound
 from app.models import URL, IDCounter, User
-from app.security import hash_password
+from app.security import hash_password, validate_password
 
 
 class UserService:
-    def __init__(self, *, context: SessionContext):
+    def __init__(self, *, context: CurrentSessionContext):
         self.ctx = context
 
     def create_user(self, *, user_data: UserCreate) -> User:
@@ -32,14 +32,13 @@ class UserService:
         user = self.ctx.session.exec(
             select(User).where(
                 User.username == user_data.username,
-                User.hashed_password == hash_password(user_data.password),
             ),
         ).one_or_none()
 
-        if user:
+        if user and validate_password(user_data.password, user.hashed_password):
             return Token(access_token=user.token())
         else:
-            raise NotFound(f"User with username: {user_data.username} not found.")
+            raise NotFound("Invalid username or password.")
 
     def get_user(self, *, user_id: uuid.UUID) -> User:
         user = self.ctx.session.exec(
@@ -52,7 +51,9 @@ class UserService:
 
 
 class CounterService:
-    def __init__(self, *, key: str, batch_size: int = 1000, context: SessionContext):
+    def __init__(
+        self, *, key: str, batch_size: int = 1000, context: CurrentSessionContext
+    ):
         self.key: str = key
         self.batch_size: int = batch_size
         self.ctx = context
@@ -94,7 +95,7 @@ class URLService:
         counter_service: CounterService,
         hash_id_secret: str,
         min_hash_len: int = 6,
-        context: SessionContext,
+        context: CurrentSessionContext,
     ):
         self.counter_service = counter_service
         self.hash_id_secret = hash_id_secret

@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 
 from app.config import settings
-from app.db import Session, engine, session_ctx
+from app.db import Session, SessionContext, current_ctx
 from app.exceptions import NotFound
 from app.models import User
 from app.security import decode_jwt
@@ -20,25 +20,29 @@ TokenDep = Annotated[str, Depends(oauth_extractor)]
 counter_service = CounterService(
     key=settings.id_counter_key,
     batch_size=settings.id_counter_batch_size,
-    context=session_ctx,
+    context=current_ctx,
 )
-user_service = UserService(context=session_ctx)
+user_service = UserService(context=current_ctx)
 url_service = URLService(
     counter_service=counter_service,
     hash_id_secret=settings.hash_id_counter_secret,
-    context=session_ctx,
+    context=current_ctx,
 )
 
 
-# implement session code.
-async def get_session():
-    with Session(engine, autoflush=True) as session:
-        token = session_ctx.set(session)
+async def atomic_session():
+    with SessionContext(atomic=True) as session:
+        print("here!!")
         yield session
-        session_ctx.reset(token)
 
 
-SessionDep = Annotated[Session, Depends(get_session)]
+async def non_atomic_session():
+    # atomic session simply gives you a session context, does not explicitly start a session.
+    # so its user should manage the beginning/commit/rollback on their own.
+    return SessionContext(atomic=False)
+
+
+SessionDep = Annotated[Session, Depends(atomic_session)]
 
 
 def get_current_user(_: SessionDep, token: TokenDep) -> User:
@@ -64,11 +68,11 @@ def get_current_user(_: SessionDep, token: TokenDep) -> User:
 
 
 # simple utility functions.
-def get_user_service(session: SessionDep) -> UserService:
+def get_user_service() -> UserService:
     return user_service
 
 
-def get_url_service(session: SessionDep) -> URLService:
+def get_url_service() -> URLService:
     return url_service
 
 

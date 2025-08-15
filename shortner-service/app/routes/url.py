@@ -27,7 +27,6 @@ def shorten_url(
 ) -> URLOut:
     try:
         short_url = url_service.shorten_url(url_data=url_in, user=user)
-        session.commit()
         return URLOut(short_url=f"{request.base_url}{short_url}")
     except IntegrityError:
         msg = "Unable to create short-url, please try again later."

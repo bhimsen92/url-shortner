@@ -1,6 +1,4 @@
 from contextvars import ContextVar
-from functools import wraps
-from typing import Any
 
 from sqlmodel import Session, create_engine
 
@@ -12,23 +10,39 @@ engine = create_engine(
 )
 
 
-def atomic(func):
-    @wraps(func)
-    def sync_wrapper(*args, **kwargs):
-        session = Session(engine, autoflush=True, autocommit=False)
-        try:
-            with session.begin():
-                return func(*args, **kwargs)
-        finally:
-            session.close()
-
-    return sync_wrapper
-
-
 _session_ctx: ContextVar[Session] = ContextVar("session_ctx")
 
 
 class SessionContext:
+    def __init__(self, atomic: bool = True):
+        # TODO: is atomic the right property name ?
+        self.atomic = True
+        self.session: Session | None = None
+        self._token = None
+
+    def __enter__(self) -> Session:
+        self.session = Session(engine, autoflush=True, autocommit=False)
+        self._token = _session_ctx.set(self.session)
+
+        if self.atomic:
+            self.session.begin()
+
+        return self.session
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.atomic and self.session:
+            if exc_type:
+                self.session.rollback()
+            else:
+                self.session.commit()
+
+        _session_ctx.reset(self._token)
+        if self.session:
+            self.session.close()
+
+
+# Helper to pull the current session. This will be used by services.
+class CurrentSessionContext:
     @property
     def session(self) -> Session:
         try:
@@ -36,11 +50,5 @@ class SessionContext:
         except LookupError:
             raise RuntimeError("No session found in context")
 
-    def set(self, session: Session) -> Any:
-        return _session_ctx.set(session)
 
-    def reset(self, token):
-        _session_ctx.reset(token)
-
-
-session_ctx = SessionContext()
+current_ctx = CurrentSessionContext()
