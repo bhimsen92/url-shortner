@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shortner-service
+  namespace: shortner-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shortner-service
+  template:
+    metadata:
+      labels:
+        app: shortner-service
+      annotations:
+        sidecar.jaegertracing.io/inject: "true"
+    spec:
+      containers:
+      - name: shortner
+        image: your-registry/shortner-service:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: PROMETHEUS_MULTIPROC_DIR
+          value: /tmp
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000

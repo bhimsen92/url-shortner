@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: shortner-app
+data:
+  nginx.conf: |
+    events {}
+    http {
+      upstream ui {
+        server ui-service:8001;
+      }
+      upstream api-redirect {
+        server shortner-service:8000;
+      }
+
+      server {
+        listen 80;
+
+        # UI
+        location / {
+          proxy_pass http://ui;
+          proxy_set_header Host $host;
+        }
+
+        # Redirect endpoint only
+        location ~ ^/r/ {
+          proxy_pass http://api-redirect;
+          proxy_set_header Host $host;
+        }
+
+        # Reject all other /api calls
+        location /api/ {
+          return 403;
+        }
+      }
+    }
