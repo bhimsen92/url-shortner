@@ -12,6 +12,12 @@ class UserCreate(UserLogin):
     display_name: str
 
 
+class UserOut(BaseModel):
+    username: str
+    display_name: str
+    is_active: bool
+
+
 class Token(BaseModel):
     access_token: str
 

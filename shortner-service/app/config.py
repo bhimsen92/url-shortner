@@ -42,6 +42,8 @@ class Settings(BaseSettings):
     id_counter_batch_size: int
     hash_id_counter_secret: str
 
+    API_V1: str = "/api/v1"
+
     @classmethod
     def settings_customise_sources(
         cls,

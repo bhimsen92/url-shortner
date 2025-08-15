@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -23,7 +24,7 @@ class User(SQLModel, table=True):
 
     def token(self):
         payload = {
-            "sub": self.id,
+            "sub": str(self.id),
         }
         return encode_jwt(payload=payload)
 
@@ -31,9 +32,9 @@ class User(SQLModel, table=True):
 class URL(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True, index=True)
     original_url: str
-    short_url: str
+    short_url: str = Field(index=True, unique=True)
     created_by: uuid.UUID = Field(foreign_key="user.id")
-    expires_at: datetime = Field(default=None)
+    expires_at: Optional[datetime] = Field(default=None, nullable=True)
     is_active: bool = Field(default=True)
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)

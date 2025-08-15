@@ -20,7 +20,7 @@ def encode_jwt(payload):
     token = jwt.encode(
         to_encode,
         settings.jwt_secret,
-        [settings.jwt_algorithm],
+        settings.jwt_algorithm,
     )
     return token
 
