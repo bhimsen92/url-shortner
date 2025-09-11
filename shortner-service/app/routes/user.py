@@ -47,6 +47,6 @@ def get_token(
         return user_service.create_token(user_data=user_login)
     except NotFound as exc:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(exc),
         )

@@ -119,9 +119,6 @@ class URLService:
             short_id = self.counter_service.get_next_id()
             short_url = self.hashids.encode(short_id)
 
-            print(short_id)
-            print(short_url)
-
         url = URL(
             original_url=url_data.original_url,
             short_url=short_url,

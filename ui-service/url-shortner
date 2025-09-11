@@ -1,0 +1,8 @@
+url-shortner
+
+url
+    id, original_url, short_url, expires_at, created_by, created_at, updated_at
+user
+    id, username, password_hash, full_name, created_at, updated_at
+
+dsf=mdfsd-A5

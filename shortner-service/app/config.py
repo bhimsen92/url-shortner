@@ -1,9 +1,12 @@
+import os
 from pathlib import Path
 from typing import Any
 
 import yaml
 from pydantic.fields import FieldInfo
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
+
+CONFIG_FILE_PATH: str = Path(os.environ["CONFIG_FILE_PATH"])
 
 
 class YamlConfig(PydanticBaseSettingsSource):
@@ -57,7 +60,7 @@ class Settings(BaseSettings):
             init_settings,
             env_settings,
             YamlConfig(
-                config_path=Path(__file__).parent.parent / "config.yaml",
+                config_path=CONFIG_FILE_PATH,
                 settings_cls=settings_cls,
             ),
             file_secret_settings,

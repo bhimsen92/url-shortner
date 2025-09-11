@@ -32,7 +32,6 @@ url_service = URLService(
 
 async def atomic_session():
     with SessionContext(atomic=True) as session:
-        print("here!!")
         yield session
 
 

@@ -35,7 +35,10 @@ dev = [
   "black>=23.1.0",
   "isort>=5.10.1",
   "mypy>=0.982",
-  "pre-commit"
+  "pytest-mock==3.15.0",
+  "pre_commit==4.3.0",
+  "pytest-cov==7.0.0",
+  "sqlalchemy_utils==0.42.0",
 ]
 
 [tool.ruff]

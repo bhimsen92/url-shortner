@@ -1,0 +1,16 @@
+environment: local
+secret_key: random-string
+
+postgres_host: localhost
+postgres_port: 5432
+postgres_db: test
+postgres_user: shortner
+postgres_password: password
+
+jwt_secret: random-string-2
+jwt_algorithm: HS256
+jwt_expire_duration_minutes: 30
+
+id_counter_key: default
+id_counter_batch_size: 1000
+hash_id_counter_secret: id-secret
