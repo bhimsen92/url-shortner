@@ -10,11 +10,11 @@ RUN apt-get update && \
     pip install --upgrade pip
 
 # Copy and install only requirements
-COPY shortner-service/requirements.txt .
-RUN pip wheel --wheel-dir=/wheels -r requirements.txt
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
 # Copy source
-COPY shortner-service /app
+COPY . /app
 
 EXPOSE 8000
-CMD ["uvicorn", "run:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["/app/scripts/entrypoint.sh"]

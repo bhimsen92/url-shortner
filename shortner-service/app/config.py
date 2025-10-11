@@ -44,6 +44,7 @@ class Settings(BaseSettings):
     id_counter_key: str
     id_counter_batch_size: int
     hash_id_counter_secret: str
+    base_url: str = "http://localhost"
 
     API_V1: str = "/api/v1"
 

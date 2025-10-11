@@ -1,7 +1,7 @@
 environment: local
 secret_key: random-string
 
-postgres_host: localhost
+postgres_host: db
 postgres_port: 5432
 postgres_db: shortner
 postgres_user: shortner
@@ -14,4 +14,4 @@ jwt_expire_duration_minutes: 30
 id_counter_key: default
 id_counter_batch_size: 1000
 hash_id_counter_secret: id-secret
-base_url: http://localhost:8000/
+base_url: http://go.local/

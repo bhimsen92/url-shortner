@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.exc import IntegrityError
 
+from app.config import settings
 from app.dependencies import CurrentUser, SessionDep, URLServiceDep
 from app.dto import URLIn, URLItem, URLOut
 from app.exceptions import NotFound
@@ -23,7 +24,7 @@ def list_urls(
 ) -> list[URLItem]:
     url_items = [
         URLItem(
-            short_url=f"{request.base_url}{url.short_url}",
+            short_url=f"{settings.base_url}{url.short_url}",
             original_url=url.original_url,
             expires_at=url.expires_at,
         )
@@ -42,7 +43,7 @@ def shorten_url(
 ) -> URLOut:
     try:
         short_url = url_service.shorten_url(url_data=url_in, user=user)
-        return URLOut(short_url=f"{request.base_url}{short_url}")
+        return URLOut(short_url=f"{settings.base_url}{short_url}")
     except IntegrityError:
         msg = "Unable to create short-url, please try again later."
         if url_in.alias:
