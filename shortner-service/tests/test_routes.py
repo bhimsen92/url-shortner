@@ -16,7 +16,7 @@ def user_token(fast_api_client):
 
     assert response.status_code == 200
 
-    token = response.json()["token"]
+    token = response.json()["access_token"]
     yield token
 
 
@@ -30,13 +30,13 @@ def test_user_creation_endpoint(fast_api_client):
         },
     )
     assert response.status_code == 200
-    assert response.json()["token"] is not None
+    assert response.json()["access_token"] is not None
 
-    token = response.json()["token"]
+    token = response.json()["access_token"]
 
     # validate that user is created.
     response = fast_api_client.get(
-        f"{settings.API_V1}/users/me", headers={{"Authorization": f"Bearer {token}"}}
+        f"{settings.API_V1}/users/me", headers={"Authorization": f"Bearer {token}"}
     )
 
     assert response.status_code == 200
@@ -61,7 +61,7 @@ def test_redirect_short_url(fast_api_client, user_token):
     assert len(short_url_code) <= 6
 
     # check redirect.
-    response = fast_api_client.get(short_url)
+    response = fast_api_client.get(short_url, follow_redirects=False)
     assert (
         response.headers["Location"]
         == "http://localhost:8080/testing-long-url-very-long"
@@ -83,7 +83,7 @@ def test_redirect_short_url_with_alias(fast_api_client, user_token):
     assert short_url.split("/")[-1] == "test"
 
     # check redirect.
-    response = fast_api_client.get(short_url)
+    response = fast_api_client.get(short_url, follow_redirects=False)
     assert (
         response.headers["Location"]
         == "http://localhost:8080/testing-long-url-very-long"

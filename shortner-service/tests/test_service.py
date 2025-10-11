@@ -1,7 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor
 
 from app.config import settings
-from app.db import current_ctx
+from app.db import SessionContext, current_ctx
 from app.service import CounterService
 
 
@@ -13,11 +13,20 @@ def test_get_next_id_conflict_free():
         context=current_ctx,
     )
 
-    num_threads = 5
-    ids_per_thread = 100
+    num_threads = 10
+    ids_per_thread = 1000
 
     def worker():
-        return [counter_service.get_next_id() for _ in range(ids_per_thread)]
+        return_values = []
+        for _ in range(ids_per_thread):
+            # we need to create session for each call, otherwise it will end up
+            # in deadlock. Because each session won't commit until it has exhausted
+            # the whole ids_per_thread. Since batch_size is just 10, two threads
+            # would end up update the same row and hence getting stuck forever.
+            with SessionContext(atomic=True):
+                return_values.append(counter_service.get_next_id())
+
+        return return_values
 
     with ThreadPoolExecutor(max_workers=num_threads) as pool:
         futures = [

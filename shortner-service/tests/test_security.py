@@ -14,4 +14,5 @@ def test_decode_encode_jwt():
     jwt_string = encode_jwt(payload)
 
     decoded_payload = decode_jwt(jwt_string)
+    assert decoded_payload.pop("exp") is not None
     assert decoded_payload == payload
