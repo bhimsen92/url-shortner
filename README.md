@@ -5,6 +5,7 @@ A small, practical URL shortener built with **FastAPI**, **HTMX** (server-driven
 **TL;DR** — Have Docker Compose?
 
 ```bash
+cd deploy/local
 docker compose up
 ```
 
