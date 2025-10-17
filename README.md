@@ -103,8 +103,6 @@ docker compose up
 
 ## API
 
-> Adjust names/paths to match your implementation if different.
-
 ### Create a short URL
 
 **POST** `/api/v1/shorten`
