@@ -38,3 +38,9 @@ class URLItem(BaseModel):
     original_url: str
     expires_at: datetime | None = None
     short_url: str
+
+
+class ClickCount(BaseModel):
+    short_url: str
+    country_code: str
+    counts: int

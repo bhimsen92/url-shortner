@@ -4,8 +4,9 @@ import uuid
 from hashids import Hashids
 from sqlmodel import select, update
 
+from app.cache import RedisCache
 from app.db import CurrentSessionContext
-from app.dto import Token, URLIn, UserCreate, UserLogin
+from app.dto import ClickCount, Token, URLIn, UserCreate, UserLogin
 from app.exceptions import NotFound
 from app.models import URL, IDCounter, User
 from app.security import hash_password, validate_password
@@ -96,11 +97,17 @@ class URLService:
         hash_id_secret: str,
         min_hash_len: int = 6,
         context: CurrentSessionContext,
+        redis_cache: RedisCache,
+        clicks_topic: str,
     ):
         self.counter_service = counter_service
         self.hash_id_secret = hash_id_secret
         self.min_hash_len = min_hash_len
         self.ctx = context
+
+        # for tracking redirect counts.
+        self.clicks_topic = clicks_topic
+        self.cache: RedisCache = redis_cache
 
         self.hashids = Hashids(
             salt=self.hash_id_secret,
@@ -133,10 +140,31 @@ class URLService:
         return short_url
 
     def un_shorten(self, short_url: str) -> str:
+        # if the short code is cached, return it from there.
+        if original_url := self.cache.get(key=short_url):
+            return original_url
+
         urls = self.ctx.session.exec(select(URL).where(URL.short_url == short_url))
 
         try:
             (url,) = urls
+
+            # cache the mapping for future use.
+            self.cache.set(key=short_url, value=url.original_url)
+
             return url.original_url
         except ValueError:
             raise NotFound(f"Invalid short-url: {short_url}")
+
+    def record_click(self, short_url, request_ip: str):
+        self.cache.produce_to_topic(
+            self.clicks_topic,
+            message={
+                "short_url": short_url,
+                "request_ip": request_ip,
+            },
+        )
+
+
+class URLClickCountService:
+    def increment_counts(self, records: list[ClickCount]) -> None: ...

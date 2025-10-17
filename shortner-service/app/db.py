@@ -1,36 +1,56 @@
 from contextvars import ContextVar
 
+from sqlalchemy import Engine
+from sqlalchemy.orm import sessionmaker
 from sqlmodel import Session, create_engine
 
-from app.config import settings
-
-engine = create_engine(
-    url=settings.sqlalchemy_database_uri,
-    pool_pre_ping=True,
-)
-
-
+_sessionmakers: sessionmaker[Session] = None
 _session_ctx: ContextVar[Session] = ContextVar("session_ctx")
 
 
+def setup_postgresql(settings):
+    global _sessionmakers
+
+    engine = create_engine(
+        url=settings.sqlalchemy_database_uri,
+        pool_pre_ping=True,
+    )
+
+    # set the global variable.
+    _sessionmakers = sessionmaker(
+        bind=engine,
+        class_=Session,
+        autoflush=True,
+        autocommit=False,
+    )
+
+    return _sessionmakers
+
+
+def close_db_connections():
+    engine: Engine = _sessionmakers.kw["bind"]
+    engine.dispose()
+
+
 class SessionContext:
-    def __init__(self, atomic: bool = True):
-        # TODO: is atomic the right property name ?
-        self.atomic = True
+    def __init__(self, with_transaction: bool = True):
+        self.with_transaction = with_transaction
         self.session: Session | None = None
         self._token = None
 
     def __enter__(self) -> Session:
-        self.session = Session(engine, autoflush=True, autocommit=False)
+        assert _sessionmakers, "Please setup database before using SessionContext"
+
+        self.session: Session = _sessionmakers()
         self._token = _session_ctx.set(self.session)
 
-        if self.atomic:
+        if self.with_transaction:
             self.session.begin()
 
         return self.session
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.atomic and self.session:
+        if self.with_transaction and self.session:
             if exc_type:
                 self.session.rollback()
             else:

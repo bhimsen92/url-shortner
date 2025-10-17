@@ -1,15 +1,38 @@
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 
 from app.config import settings
-from app.db import Session, SessionContext, current_ctx
+from app.db import Session, SessionContext
 from app.exceptions import NotFound
 from app.models import User
 from app.security import decode_jwt
-from app.service import CounterService, URLService, UserService
+from app.service import URLService, UserService
+
+
+async def session_with_transaction():
+    with SessionContext(with_transaction=True) as session:
+        yield session
+
+
+async def session_without_transaction():
+    # without transaction session simply gives you a session context, does not explicitly
+    # start a session. so its user should manage the beginning/commit/rollback on their own.
+    return SessionContext(with_transaction=False)
+
+
+# simple utility functions.
+def get_user_service(request: Request) -> UserService:
+    return request.state.user_service
+
+
+def get_url_service(request: Request) -> URLService:
+    return request.state.url_service
+
+
+# dependency setup.
 
 oauth_extractor = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1}/users/access-token",
@@ -17,34 +40,16 @@ oauth_extractor = OAuth2PasswordBearer(
 TokenDep = Annotated[str, Depends(oauth_extractor)]
 
 
-counter_service = CounterService(
-    key=settings.id_counter_key,
-    batch_size=settings.id_counter_batch_size,
-    context=current_ctx,
-)
-user_service = UserService(context=current_ctx)
-url_service = URLService(
-    counter_service=counter_service,
-    hash_id_secret=settings.hash_id_counter_secret,
-    context=current_ctx,
-)
+SessionDep = Annotated[Session, Depends(session_with_transaction)]
 
 
-async def atomic_session():
-    with SessionContext(atomic=True) as session:
-        yield session
+UserServiceDep = Annotated[UserService, Depends(get_user_service)]
+URLServiceDep = Annotated[URLService, Depends(get_url_service)]
 
 
-async def non_atomic_session():
-    # atomic session simply gives you a session context, does not explicitly start a session.
-    # so its user should manage the beginning/commit/rollback on their own.
-    return SessionContext(atomic=False)
-
-
-SessionDep = Annotated[Session, Depends(atomic_session)]
-
-
-def get_current_user(_: SessionDep, token: TokenDep) -> User:
+def get_current_user(
+    user_service: UserServiceDep, _: SessionDep, token: TokenDep
+) -> User:
     sub: str = ""
     try:
         payload: dict = decode_jwt(token)
@@ -66,15 +71,4 @@ def get_current_user(_: SessionDep, token: TokenDep) -> User:
     return user
 
 
-# simple utility functions.
-def get_user_service() -> UserService:
-    return user_service
-
-
-def get_url_service() -> URLService:
-    return url_service
-
-
-UserServiceDep = Annotated[UserService, Depends(get_user_service)]
-URLServiceDep = Annotated[URLService, Depends(get_url_service)]
 CurrentUser = Annotated[User, Depends(get_current_user)]

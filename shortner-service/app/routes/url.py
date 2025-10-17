@@ -56,9 +56,18 @@ def shorten_url(
 
 
 @redirect_route.get("/{short_url}")
-def redirect_short_url(short_url: str, session: SessionDep, url_service: URLServiceDep):
+def redirect_short_url(
+    request: Request,
+    short_url: str,
+    session: SessionDep,
+    url_service: URLServiceDep,
+):
     try:
         original_url = url_service.un_shorten(short_url=short_url)
+
+        # add short url and ip to stream.
+        url_service.record_click(short_url, request.client.host)
+
         return RedirectResponse(url=original_url, status_code=302)
     except NotFound as exc:
         raise HTTPException(

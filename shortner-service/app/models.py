@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
+from sqlalchemy import BigInteger, Column
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.security import encode_jwt, validate_password
@@ -45,4 +46,22 @@ class URL(SQLModel, table=True):
 
 class IDCounter(SQLModel, table=True):
     key: str = Field(primary_key=True, index=True)
-    next_id: int = Field(default=1, nullable=False)
+    next_id: int = Field(
+        default=1,
+        sa_column=Column(BigInteger, nullable=False, default=1),
+    )
+
+
+class URLClickCount(SQLModel, table=True):
+    short_url: str = Field(
+        foreign_key="url.short_url",
+        nullable=False,
+        primary_key=True,
+    )
+    country_code: str = Field(
+        nullable=False,
+        max_length=3,
+        primary_key=True,
+    )
+
+    counts: int = Field(default=0)

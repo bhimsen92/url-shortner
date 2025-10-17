@@ -46,6 +46,9 @@ class Settings(BaseSettings):
     hash_id_counter_secret: str
     base_url: str = "http://localhost"
 
+    redis_url: str
+    click_analytics_topic: str
+
     API_V1: str = "/api/v1"
 
     @classmethod

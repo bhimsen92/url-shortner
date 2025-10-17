@@ -15,3 +15,4 @@ id_counter_key: default
 id_counter_batch_size: 1000
 hash_id_counter_secret: id-secret
 base_url: http://localhost:8000/
+redis_url: redis://localhost:6379/
