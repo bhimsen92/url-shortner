@@ -19,7 +19,7 @@ def app_setup(app: FastAPI):
     # setup redis client.
     redis_client: redis.Redis = setup_redis(settings)
 
-    # setup services.
+    # setup services(singleton).
     counter_service = CounterService(
         key=settings.id_counter_key,
         batch_size=settings.id_counter_batch_size,
@@ -48,7 +48,7 @@ def app_setup(app: FastAPI):
 
 
 def create_app() -> FastAPI:
-    app = FastAPI()
+    app = FastAPI(lifespan=app_setup)
 
     app.include_router(user_routes, prefix=settings.API_V1)
     app.include_router(urls_route, prefix=settings.API_V1)
