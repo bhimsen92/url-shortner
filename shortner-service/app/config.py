@@ -46,8 +46,12 @@ class Settings(BaseSettings):
     hash_id_counter_secret: str
     base_url: str = "http://localhost"
 
-    redis_url: str
+    redis_host: str
+    redis_user: str
+    redis_password: str
     click_analytics_topic: str
+    click_analytics_consumer_group: str
+    click_analytics_batch_count: int
 
     API_V1: str = "/api/v1"
 
@@ -78,5 +82,9 @@ class Settings(BaseSettings):
             f"{self.postgres_port}/{self.postgres_db}"
         )
 
+    @property
+    def redis_url(self):
+        return f"redis://{self.redis_user}:{self.redis_password}@{self.redis_host}"
 
-settings = Settings()
+
+settings: Settings = Settings()

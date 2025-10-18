@@ -9,7 +9,7 @@ from app.db import Session, SessionContext
 from app.exceptions import NotFound
 from app.models import User
 from app.security import decode_jwt
-from app.service import URLService, UserService
+from app.service import URLClickCountService, URLService, UserService
 
 
 async def session_with_transaction():
@@ -19,21 +19,24 @@ async def session_with_transaction():
 
 async def session_without_transaction():
     # without transaction session simply gives you a session context, does not explicitly
-    # start a session. so its user should manage the beginning/commit/rollback on their own.
+    # start a session/transaction. so its user should manage the beginning/commit/rollback on their own.
     return SessionContext(with_transaction=False)
 
 
 # simple utility functions.
 def get_user_service(request: Request) -> UserService:
-    return request.state.user_service
+    return request.app.state.user_service
 
 
 def get_url_service(request: Request) -> URLService:
-    return request.state.url_service
+    return request.app.state.url_service
+
+
+def get_url_click_count_service(request: Request) -> URLClickCountService:
+    return request.app.state.url_click_count_service
 
 
 # dependency setup.
-
 oauth_extractor = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1}/users/access-token",
 )
@@ -45,6 +48,9 @@ SessionDep = Annotated[Session, Depends(session_with_transaction)]
 
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 URLServiceDep = Annotated[URLService, Depends(get_url_service)]
+URLClickCountServiceDep = Annotated[
+    URLClickCountService, Depends(get_url_click_count_service)
+]
 
 
 def get_current_user(

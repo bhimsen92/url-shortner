@@ -15,3 +15,9 @@ id_counter_key: default
 id_counter_batch_size: 1000
 hash_id_counter_secret: id-secret
 base_url: http://go.local/
+redis_host: localhost
+redis_user: admin
+redis_password: password
+click_analytics_topic: clicks-stream
+click_analytics_consumer_group: postgres-writers
+click_analytics_batch_count: 100

@@ -8,7 +8,7 @@ from app.cache import RedisCache
 from app.db import CurrentSessionContext
 from app.dto import ClickCount, Token, URLIn, UserCreate, UserLogin
 from app.exceptions import NotFound
-from app.models import URL, IDCounter, User
+from app.models import URL, IDCounter, URLClickCount, User
 from app.security import hash_password, validate_password
 
 
@@ -167,4 +167,38 @@ class URLService:
 
 
 class URLClickCountService:
-    def increment_counts(self, records: list[ClickCount]) -> None: ...
+    def __init__(self, *, context: CurrentSessionContext):
+        self.ctx = context
+
+    def increment_counts(self, records: list[ClickCount]) -> None:
+        for record in records:
+            stmt = select(URLClickCount).where(
+                URLClickCount.short_url == record.short_url,
+                URLClickCount.country_code == URLClickCount.country_code,
+            )
+            row = self.ctx.session.exec(stmt).one_or_none()
+            if row:
+                row.counts += record.counts
+            else:
+                row = URLClickCount(
+                    short_url=record.short_url,
+                    country_code=record.country_code,
+                    counts=record.counts,
+                )
+            self.ctx.session.add(row)
+
+    def get_stats(self, short_url: str, offset: int, limit: int) -> list[ClickCount]:
+        stmt = (
+            select(URLClickCount)
+            .where(URLClickCount.short_url == short_url)
+            .offset(offset)
+            .limit(limit)
+        )
+
+        results = self.ctx.session.exec(stmt).fetchall()
+
+        return_value = []
+        for result in results:
+            return_value.append(ClickCount(**result.model_dump()))
+
+        return return_value

@@ -1,10 +1,15 @@
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, HTTPException, Query, Request, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.exc import IntegrityError
 
 from app.config import settings
-from app.dependencies import CurrentUser, SessionDep, URLServiceDep
-from app.dto import URLIn, URLItem, URLOut
+from app.dependencies import (
+    CurrentUser,
+    SessionDep,
+    URLClickCountServiceDep,
+    URLServiceDep,
+)
+from app.dto import ClickCount, URLIn, URLItem, URLOut
 from app.exceptions import NotFound
 
 urls_route = APIRouter(
@@ -37,7 +42,6 @@ def list_urls(
 def shorten_url(
     url_in: URLIn,
     session: SessionDep,
-    request: Request,
     user: CurrentUser,
     url_service: URLServiceDep,
 ) -> URLOut:
@@ -53,6 +57,22 @@ def shorten_url(
             status_code=status.HTTP_409_CONFLICT,
             detail=msg,
         )
+
+
+@urls_route.get("/stats/{short_url}")
+def click_stats(
+    short_url: str,
+    session: SessionDep,
+    user: CurrentUser,
+    url_click_count_service: URLClickCountServiceDep,
+    limit: int = Query(default=50, ge=1, le=100, description="Page size"),
+    offset: int = Query(default=0, ge=0, description="Offset for pagination"),
+) -> list[ClickCount]:
+    return url_click_count_service.get_stats(
+        short_url=short_url,
+        offset=offset,
+        limit=limit,
+    )
 
 
 @redirect_route.get("/{short_url}")

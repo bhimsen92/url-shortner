@@ -44,3 +44,9 @@ class ClickCount(BaseModel):
     short_url: str
     country_code: str
     counts: int
+
+
+class ClickStreamMessage(BaseModel):
+    message_id: str
+    short_url: str
+    request_ip: str

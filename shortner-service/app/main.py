@@ -8,11 +8,11 @@ from app.config import settings
 from app.db import close_db_connections, current_ctx, setup_postgresql
 from app.routes.url import redirect_route, urls_route
 from app.routes.user import route as user_routes
-from app.service import CounterService, URLService, UserService
+from app.service import CounterService, URLClickCountService, URLService, UserService
 
 
 @asynccontextmanager
-def app_setup(app: FastAPI):
+async def app_setup(app: FastAPI):
     # setup postgresql database connection.
     setup_postgresql(settings)
 
@@ -35,10 +35,14 @@ def app_setup(app: FastAPI):
         redis_cache=RedisCache(client=redis_client),
         clicks_topic=settings.click_analytics_topic,
     )
+    url_click_count_service = URLClickCountService(
+        context=current_ctx,
+    )
 
-    app.state.countr_service = counter_service
+    app.state.counter_service = counter_service
     app.state.user_service = user_service
     app.state.url_service = url_service
+    app.state.url_click_count_service = url_click_count_service
 
     try:
         yield

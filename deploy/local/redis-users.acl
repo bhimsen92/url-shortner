@@ -1,0 +1,5 @@
+# disable default user
+user default off
+
+# admin user: full access - replace with a strong secret
+user admin on >password ~* +@all
