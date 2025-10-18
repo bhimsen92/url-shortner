@@ -44,7 +44,6 @@ class Settings(BaseSettings):
     id_counter_key: str
     id_counter_batch_size: int
     hash_id_counter_secret: str
-    base_url: str = "http://localhost"
 
     redis_host: str
     redis_user: str
@@ -53,6 +52,7 @@ class Settings(BaseSettings):
     click_analytics_consumer_group: str
     click_analytics_batch_count: int
 
+    base_url: str = "http://localhost"
     API_V1: str = "/api/v1"
 
     @classmethod

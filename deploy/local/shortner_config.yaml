@@ -14,8 +14,9 @@ jwt_expire_duration_minutes: 30
 id_counter_key: default
 id_counter_batch_size: 1000
 hash_id_counter_secret: id-secret
-base_url: http://go.local/
-redis_host: localhost
+base_url: http://shorty/
+
+redis_host: redis-cache
 redis_user: admin
 redis_password: password
 click_analytics_topic: clicks-stream
